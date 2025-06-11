@@ -1,1 +1,1 @@
-# django_blog
+# django_blog_sep242
