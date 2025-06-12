@@ -19,7 +19,7 @@
         <nav>
             <ul class="nav">
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-white">Посты</a>
+                    <a href="{% url 'post-list' %}" class="nav-link text-white">Посты</a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link text-white">О нас</a>
@@ -33,10 +33,10 @@
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-white">Вход</a>
+                    <a href="{% url 'login' %}" class="nav-link text-white">Вход</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link text-white">Зарегистрироваться</a>
+                    <a href="{% url 'register' %}" class="nav-link text-white">Зарегистрироваться</a>
                 </li>
                 {% endif %}
             </ul>

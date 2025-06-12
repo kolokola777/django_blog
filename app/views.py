@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
-from app.models import Post
+from app.models import Post, Like, DisLike
 from app.forms import PostForm, CustomUserCreationForm
+
 
 # TODO: Сделать Страницу Главную Index
 class IndexView(ListView):
@@ -138,3 +139,32 @@ class CustomLoginView(LoginView):
     template_name = "app/login.html"
     success_url = reverse_lazy("index")
 
+
+def like_post(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=post_id)
+
+        # Удаление дизлайка если он уже стоит
+        DisLike.objects.filter(post=post, user=request.user).delete()
+
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+        if not created:
+            like.delete()
+
+        return redirect("post-detail", post_id)
+
+
+def dislike_post(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=post_id)
+
+        # Удаление лайка если он уже стоит
+        Like.objects.filter(post=post, user=request.user).delete()
+
+        dislike, created = DisLike.objects.get_or_create(user=request.user, post=post)
+
+        if not created:
+            dislike.delete()
+
+        return redirect("post-detail", post_id)
