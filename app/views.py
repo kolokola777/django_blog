@@ -1,11 +1,12 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
-from app.models import Post, Like, DisLike
-from app.forms import PostForm, CustomUserCreationForm
+from app.models import Post, Like, DisLike, Report
+from app.forms import PostForm, CustomUserCreationForm, CommentForm
 
 
 # TODO: Сделать Страницу Главную Index
@@ -76,6 +77,15 @@ class PostDetailView(DetailView):
     # Имя Переменной в Шаблон
     context_object_name = "post"
 
+    def get_context_data(self, **kwargs):
+        """
+        Помогает засунуть дополнительные перемены
+        """
+        context = super().get_context_data(**kwargs)
+        context["comment_form"] = CommentForm()  # Добавлили переменную comment_form
+        context["post_test"] = "Тест"
+        return context
+
 
 # TODO: Сделать Страницу Изменение Поста
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -140,6 +150,7 @@ class CustomLoginView(LoginView):
     success_url = reverse_lazy("index")
 
 
+@login_required
 def like_post(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, pk=post_id)
@@ -155,6 +166,7 @@ def like_post(request, post_id):
         return redirect("post-detail", post_id)
 
 
+@login_required
 def dislike_post(request, post_id):
     if request.method == "POST":
         post = get_object_or_404(Post, pk=post_id)
@@ -168,3 +180,41 @@ def dislike_post(request, post_id):
             dislike.delete()
 
         return redirect("post-detail", post_id)
+
+
+@login_required
+def create_comment(request, post_id):
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=post_id)
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user  # Вручную указываем пользователя что создал комментарий
+            comment.post = post  # Вручную указали пост к которому создам комментарий
+            comment.save()  # Сохранили комментарий
+            return redirect("post-detail", post_id)
+        else:
+            # Нужно доработать и сделать ошибку
+            return redirect("post-detail", post_id)
+    else:  # GET
+        return redirect("post-detail", post_id)
+
+
+# ДЗ сделать страницу о нас
+def about_us(request):
+    pass
+
+
+# TODO: Создание жалоб
+def create_report(request, post_id):
+    pass
+
+
+# TODO: Получение списка жалоб
+class RepostListView(LoginRequiredMixin, ListView):
+    model = Report
+    template_name = "app/report_list.html"
+    context_object_name = "reports"
+
+    def get_queryset(self):  # Фильтруем данные
+        return Report.objects.filter(user=self.request.user)

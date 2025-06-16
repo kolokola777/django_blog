@@ -12,21 +12,21 @@
         <div class="card-body pb-0">
             <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
                 <div class="btn-group">
-                    <form action="#" method="post">
+                    <form action="{% url 'like' post.pk %}" method="post">
                         {% csrf_token %}
-                        <button class="btn btn-outline-success">
+                        <button type="submit" class="btn btn-outline-success">
                             Лайк {{ post.get_likes_count }}
                         </button>
                     </form>
                 </div>
                 <div class="btn-group">
-                    <form action="#" method="post">
+                    <form action="{% url 'dislike' post.pk %}" method="post">
                         {% csrf_token %}
-                        <button class="btn btn-outline-danger">
+                        <button type="submit" class="btn btn-outline-danger">
                             Дизлайк {{ post.get_dislikes_count }}
                         </button>
                     </form>
-                    <a href="#" class="btn btn-outline-warning">
+                    <a href="#comment" class="btn btn-outline-warning">
                         Комментарий {{ post.get_comments_count }}
                     </a>
                 </div>
@@ -92,7 +92,7 @@
                     {% for comment in post.comments.all %}
                         <li class="mb-3 pb-2 border-bottom">
                             <p class="mb-1">
-                                <strong>{{ comment.author.username }}</strong>
+                                <strong>{{ comment.user.username }}</strong>
                                 <small class="text-muted">{{ comment.created_at }}</small>
                             </p>
                             <p class="mb-0">
@@ -109,7 +109,16 @@
                 </p>
             </div>
         {% endif %}
+        <div class="card-footer" id="comment">
+            <form action="{% url 'comment' post.pk %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ comment_form.body }}
+                </div>
+                <button class="btn btn-primary">Отправить</button>
+            </form>
+        </div>
     </div>
 </div>
-
+<p>{{ post_test }}</p>
 {% endblock main %}

@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from app.models import Post
+from app.models import Post, Comment
 from django.contrib.auth.forms import UserCreationForm
 
 
@@ -27,3 +27,15 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ["username", "first_name", "last_name", "email", "password1", "password2"]
+
+
+class CommentForm(forms.ModelForm):
+    body = forms.CharField(widget=forms.Textarea(attrs={
+        "class": "form-control",
+        "rows": "3",
+        "placeholder": "Напишите комментарий...",
+    }))
+
+    class Meta:
+        model = Comment
+        fields = ["body"]
