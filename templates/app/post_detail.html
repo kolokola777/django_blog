@@ -32,14 +32,14 @@
                 </div>
                 <div class="btn-group">
                     {% if user == post.author %}
-                    <a href="#" class="btn btn-outline-primary">
+                    <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-primary">
                         Редактировать
                     </a>
-                    <a href="#" class="btn btn-outline-danger">
+                    <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger">
                         Удалить
                     </a>
                     {% else %}
-                    <a href="#" class="btn btn-outline-danger">
+                    <a href="{% url 'create-report' post.pk %}" class="btn btn-outline-danger">
                         Пожаловаться
                     </a>
                     {% endif %}
@@ -84,30 +84,30 @@
         </div>
         {% endif %}
         {% if post.comments.exists %}
-            <div class="card-body border-top">
-                <h5 class="mb-3">
-                    Комментарии:
-                </h5>
-                <ul class="list-unstyled">
-                    {% for comment in post.comments.all %}
-                        <li class="mb-3 pb-2 border-bottom">
-                            <p class="mb-1">
-                                <strong>{{ comment.user.username }}</strong>
-                                <small class="text-muted">{{ comment.created_at }}</small>
-                            </p>
-                            <p class="mb-0">
-                                {{ comment.body }}
-                            </p>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="card-body border-top">
+            <h5 class="mb-3">
+                Комментарии:
+            </h5>
+            <ul class="list-unstyled">
+                {% for comment in post.comments.all %}
+                <li class="mb-3 pb-2 border-bottom">
+                    <p class="mb-1">
+                        <strong>{{ comment.user.username }}</strong>
+                        <small class="text-muted">{{ comment.created_at }}</small>
+                    </p>
+                    <p class="mb-0">
+                        {{ comment.body }}
+                    </p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
         {% else %}
-            <div class="card-body border-top">
-                <p class="text-muted">
-                    Комментариев пока нет...
-                </p>
-            </div>
+        <div class="card-body border-top">
+            <p class="text-muted">
+                Комментариев пока нет...
+            </p>
+        </div>
         {% endif %}
         <div class="card-footer" id="comment">
             <form action="{% url 'comment' post.pk %}" method="post">

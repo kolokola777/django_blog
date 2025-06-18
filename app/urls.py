@@ -1,13 +1,18 @@
-from django.urls import path
-from django.contrib.auth.views import LogoutView
+from django.urls import path, reverse_lazy
+from django.contrib.auth.views import LogoutView, PasswordChangeView
 from app.views import IndexView, CustomLoginView, register, PostListView, PostDetailView, PostDeleteView, \
-    PostCreateView, PostUpdateView, like_post, dislike_post, create_comment
+    PostCreateView, PostUpdateView, like_post, dislike_post, create_comment, create_report, RepostListView
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),  # Главная Страница
     path("auth/register", register, name="register"),  # Регистрация
     path("auth/login", CustomLoginView.as_view(), name="login"),  # Авторизация
     path("auth/logout", LogoutView.as_view(next_page="login"), name="logout"),  # Выход из учетки
+    # Изменение пароля
+    path("auth/change-password", PasswordChangeView.as_view(
+        template_name="app/change_password.html", success_url=reverse_lazy("index")
+    )),
+    # Изменение информации пользователя
 
     # Посты
     path("posts/", PostListView.as_view(), name="post-list"),  # Список постов
@@ -20,4 +25,8 @@ urlpatterns = [
     path("posts/<int:post_id>/like", like_post, name="like"),
     path("posts/<int:post_id>/dislike", dislike_post, name="dislike"),
     path("posts/<int:post_id>/comment", create_comment, name="comment"),
+
+    # Жалобы
+    path("posts/<int:post_id>/report", create_report, name="create-report"),
+    path("reports/", RepostListView.as_view(), name="report-list"),
 ]

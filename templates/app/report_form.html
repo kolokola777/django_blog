@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container">
+    <div class="form-container">
+        <h3 class="mb-4 text-center">
+            Отправить жалобу
+        </h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Тема жалобы</label>
+                {{ form.theme }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Описание жалобы</label>
+                {{ form.description }}
+            </div>
+            <div class="row justify-content-between">
+                <button type="submit" class="btn btn-primary btn-lg">Отправить</button>
+                <a href="{% url 'post-detail' post_id %}" class="btn btn-danger btn-lg">Назад</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock main %}

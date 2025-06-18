@@ -5,8 +5,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.models import User
 from app.models import Post, Like, DisLike, Report
-from app.forms import PostForm, CustomUserCreationForm, CommentForm
+from app.forms import PostForm, CustomUserCreationForm, CommentForm, ReportForm, UserChangeForm
 
 
 # TODO: Сделать Страницу Главную Index
@@ -206,8 +207,39 @@ def about_us(request):
 
 
 # TODO: Создание жалоб
+@login_required()
 def create_report(request, post_id):
-    pass
+    post = get_object_or_404(Post, pk=post_id)
+    # когда человек заполнил форму
+    if request.method == "POST":
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.user = request.user
+            report.post = post
+            report.save()
+            return redirect("post-detail", post_id)
+        else:
+            form = ReportForm()
+            return render(
+                request,
+                "app/report_form.html",
+                {
+                    "form": form,
+                    "post_id": post_id
+                }
+            )
+    # когда человек впервые зашел на страницу заполнения
+    else:
+        form = ReportForm()
+        return render(
+            request,
+            "app/report_form.html",
+            {
+                "form": form,
+                "post_id": post_id
+            }
+        )
 
 
 # TODO: Получение списка жалоб
@@ -218,3 +250,24 @@ class RepostListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):  # Фильтруем данные
         return Report.objects.filter(user=self.request.user)
+
+
+# Профиль
+@login_required
+def profile_view(request):
+    user = get_object_or_404(User, request.user)
+    return render(
+        request,
+        "app/profile.html",
+        {
+            "user": user
+        }
+    )
+
+
+# Изменение информации пользователя
+class UserUpdateView(UpdateView):
+    form_class = UserChangeForm
+    template_name = "app/user_form.html"
+    success_url = reverse_lazy("index")
+    model = User

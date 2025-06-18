@@ -3,8 +3,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from app.models import Post, Comment
-from django.contrib.auth.forms import UserCreationForm
+from app.models import Post, Comment, Report
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm as BaseUserChangeForm
 
 
 class PostForm(forms.ModelForm):
@@ -39,3 +39,35 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ["body"]
+
+
+class ReportForm(forms.ModelForm):
+    description = forms.CharField(max_length=1024, widget=forms.Textarea(
+        attrs={
+            "class": "form-control",
+            "rows": 3,
+            "placeholder": "Опишите причину жалобы..."
+        }
+    ))
+
+    class Meta:
+        fields = ["theme", "description"]
+        model = Report
+        widgets = {
+            "theme": forms.Select(
+                attrs={
+                    "class": "form-select"
+                }
+            )
+        }
+
+
+class UserChangeForm(BaseUserChangeForm):
+    class Meta(BaseUserChangeForm.Meta):
+        model = User
+        fields = (
+            "username",
+            "first_name",
+            "last_name",
+            "email"
+        )
