@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 from app.models import Post, Like, DisLike, Report
-from app.forms import PostForm, CustomUserCreationForm, CommentForm, ReportForm, UserChangeForm
+from app.forms import PostForm, CustomUserCreationForm, CommentForm, ReportForm, UserChangeForm, MediaFormSet
 
 
 # TODO: Сделать Страницу Главную Index
@@ -47,6 +47,28 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["media_formset"] = kwargs.get("media_formset") or MediaFormSet()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        media_formset = MediaFormSet(request.POST, request.FILES)
+
+        if form.is_valid() and media_formset.is_valid():
+            post = form.save(commit=False)
+            post.author = self.request.user
+            post.save()
+
+            media_formset.instance = post
+            media_formset.save()
+
+            return redirect("index")
+        return self.render_to_response(
+            self.get_context_data(form=form, media_formset=media_formset)
+        )
 
 
 # TODO: Сделать Страницу Списка Постов
@@ -255,13 +277,9 @@ class RepostListView(LoginRequiredMixin, ListView):
 # Профиль
 @login_required
 def profile_view(request):
-    user = get_object_or_404(User, request.user)
     return render(
         request,
-        "app/profile.html",
-        {
-            "user": user
-        }
+        "app/profile.html"
     )
 
 
@@ -271,3 +289,8 @@ class UserUpdateView(UpdateView):
     template_name = "app/user_form.html"
     success_url = reverse_lazy("index")
     model = User
+
+
+class UserPostListView(PostListView):
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block main %}
+<div class="container">
+    <h3 class="mb-4 text-center">
+        Мои жалобы
+    </h3>
+    {% if reports %}
+    <table class="table table-striped">
+        <thead class="table-light">
+        <tr>
+            <th>Тема</th>
+            <th>Пост</th>
+            <th>Статус</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for report in reports %}
+        <tr>
+            <!-- get_название_поля_display -->
+            <td>{{ report.get_theme_display }}</td>
+            <td>{{ report.post.title }}</td>
+            <td>{{ report.post.created_at }}</td>
+            <td>
+                {% if report.is_solve %}
+                <span class="badge bg-success">Решено</span>
+                {% else %}
+                <span class="badge bg-warning text-dark">В обработке</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center">Вы не отправили ни одной жалобы</p>
+    {% endif %}
+
+</div>
+{% endblock main %}

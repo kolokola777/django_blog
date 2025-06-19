@@ -1,7 +1,8 @@
 from django.urls import path, reverse_lazy
 from django.contrib.auth.views import LogoutView, PasswordChangeView
 from app.views import IndexView, CustomLoginView, register, PostListView, PostDetailView, PostDeleteView, \
-    PostCreateView, PostUpdateView, like_post, dislike_post, create_comment, create_report, RepostListView
+    PostCreateView, PostUpdateView, like_post, dislike_post, create_comment, create_report, RepostListView, \
+    UserUpdateView, UserPostListView, profile_view
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),  # Главная Страница
@@ -11,8 +12,11 @@ urlpatterns = [
     # Изменение пароля
     path("auth/change-password", PasswordChangeView.as_view(
         template_name="app/change_password.html", success_url=reverse_lazy("index")
-    )),
+    ), name="password-change"),
     # Изменение информации пользователя
+    path("accounts/profile/", profile_view, name="profile"),
+    path("accounts/profile/update/<int:pk>", UserUpdateView.as_view(), name="user-update"),
+    path("accounts/profile/posts", UserPostListView.as_view(), name="user-posts"),
 
     # Посты
     path("posts/", PostListView.as_view(), name="post-list"),  # Список постов
